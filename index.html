@@ -165,21 +165,27 @@ function onSlipFile(input){
   reader.readAsDataURL(file);
 }
 
+function getApiKey(){return localStorage.getItem("gemini_key")||""}
+function saveApiKey(k){localStorage.setItem("gemini_key",k.trim())}
+
 async function analyzeSlip(dataUrl){
+  let apiKey=getApiKey();
+  if(!apiKey){
+    apiKey=prompt("🔑 กรอก Google Gemini API Key\n(ฟรีถาวร — ได้จาก aistudio.google.com)\nเก็บไว้ในเครื่องคุณเท่านั้น");
+    if(!apiKey){slipState={...slipState,status:"error",error:"ต้องใส่ Gemini API Key ก่อน"};render();return;}
+    saveApiKey(apiKey);
+  }
   try{
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:500,
-        messages:[{
-          role:"user",
-          content:[
-            {type:"image",source:{type:"base64",media_type:mediaType,data:base64}},
-            {type:"text",text:`นี่คือสลิปโอนเงินจากแบงค์ไทย (กสิกร/SCB/กรุงไทย/PromptPay/อื่นๆ)
+        contents:[{
+          parts:[
+            {inline_data:{mime_type:mediaType,data:base64}},
+            {text:`นี่คือสลิปโอนเงินจากแบงค์ไทย (กสิกร/SCB/กรุงไทย/PromptPay/อื่นๆ)
 กรุณาอ่านข้อมูลและตอบกลับเป็น JSON เท่านั้น ไม่มีข้อความอื่น ไม่มี markdown:
 {
   "amount": <ตัวเลขยอดโอน ไม่มีเครื่องหมาย>,
@@ -195,7 +201,7 @@ async function analyzeSlip(dataUrl){
       })
     });
     const data=await res.json();
-    const text=data.content.map(i=>i.text||"").join("").trim();
+    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||"";
     const clean=text.replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(clean);
     if(parsed.error){
