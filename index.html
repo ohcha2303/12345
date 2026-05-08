@@ -61,6 +61,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.6);cursor:p
   <button class="nav-item" id="nav-history" onclick="setTab('history')"><span class="nav-icon">📋</span>รายการ</button>
   <button class="nav-item" id="nav-slip" onclick="setTab('slip')"><span class="nav-icon">📸</span>สแกนสลิป</button>
   <button class="nav-item" id="nav-add" onclick="setTab('add')"><span class="nav-icon">➕</span>เพิ่ม</button>
+  <button class="nav-item" id="nav-settings" onclick="setTab('settings')"><span class="nav-icon">⚙️</span>ตั้งค่า</button>
 </nav>
 
 <script>
@@ -169,12 +170,8 @@ function getApiKey(){return localStorage.getItem("gemini_key")||""}
 function saveApiKey(k){localStorage.setItem("gemini_key",k.trim())}
 
 async function analyzeSlip(dataUrl){
-  let apiKey=getApiKey();
-  if(!apiKey){
-    apiKey=prompt("🔑 กรอก Google Gemini API Key\n(ฟรีถาวร — ได้จาก aistudio.google.com)\nเก็บไว้ในเครื่องคุณเท่านั้น");
-    if(!apiKey){slipState={...slipState,status:"error",error:"ต้องใส่ Gemini API Key ก่อน"};render();return;}
-    saveApiKey(apiKey);
-  }
+  const apiKey=getApiKey();
+  if(!apiKey){slipState={...slipState,status:"error",error:"ยังไม่มี API Key — กรอกที่แท็บ ⚙️ ตั้งค่า"};render();return;}
   try{
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
@@ -422,6 +419,31 @@ function render(){
       </div>
       <button class="btn-primary" onclick="submitForm()">${editId!==null?"💾 บันทึกการแก้ไข":"✅ เพิ่มรายการ"}</button>
       ${editId!==null?`<button onclick="cancelEdit()" style="background:none;border:1px solid #2a2a38;border-radius:12px;color:#6b6b8a;cursor:pointer;font-family:inherit;font-size:14px;padding:10px">ยกเลิก</button>`:""}
+    </div>`;
+  }
+
+  // ── SETTINGS ──
+  else if(activeTab==="settings"){
+    const hasKey=!!getApiKey();
+    html+=`<div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card" style="padding:20px">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">🔑 Gemini API Key</div>
+        <div style="font-size:12px;color:#5a5a7a;margin-bottom:14px">ฟรีถาวร — ได้จาก <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#7c6aff">aistudio.google.com</a></div>
+        ${hasKey
+          ? `<div style="background:#0d2e1a;border:1px solid #22c55e44;border-radius:10px;padding:12px;font-size:13px;color:#4ade80;margin-bottom:12px">✅ มี API Key แล้ว</div>`
+          : `<div style="background:#2a1020;border:1px solid #f43f5e44;border-radius:10px;padding:12px;font-size:13px;color:#f87171;margin-bottom:12px">❌ ยังไม่มี API Key</div>`}
+        <input class="inp" id="key-inp" type="text" placeholder="AIza..." style="margin-bottom:10px;font-size:14px"/>
+        <button class="btn-primary" onclick="saveKeyFromInput()" style="margin-bottom:8px">💾 บันทึก API Key</button>
+        ${hasKey?`<button onclick="clearApiKey()" style="background:none;border:1px solid #f43f5e44;border-radius:12px;color:#f87171;cursor:pointer;font-family:inherit;font-size:14px;padding:10px;width:100%">🗑️ ลบ API Key</button>`:""}
+      </div>
+      <div class="card" style="padding:20px">
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px">📖 วิธีได้ Gemini API Key</div>
+        ${[["1","ไปที่ aistudio.google.com"],["2","ล็อกอินด้วย Google Account"],["3","กด Get API Key → Create API Key"],["4","คัดลอก Key มาวางด้านบน"]].map(([n,t])=>`
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">
+          <div style="background:#7c6aff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${n}</div>
+          <div style="font-size:14px;padding-top:3px">${t}</div>
+        </div>`).join("")}
+      </div>
     </div>`;
   }
 
