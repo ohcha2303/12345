@@ -17,7 +17,6 @@ body{font-family:'Sarabun',sans-serif;background:#0f0f13;color:#e8e6f0;min-heigh
 .inp:focus{border-color:#7c6aff}
 .btn-p{background:linear-gradient(135deg,#7c6aff,#a855f7);border:none;border-radius:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;padding:14px;width:100%}
 .btn-g{background:none;border:1px solid #2a2a38;border-radius:12px;color:#6b6b8a;cursor:pointer;font-family:inherit;font-size:14px;padding:10px;width:100%}
-.btn-d{background:none;border:1px solid #f43f5e44;border-radius:12px;color:#f87171;cursor:pointer;font-family:inherit;font-size:14px;padding:10px;width:100%}
 .cat-pill{background:#1e1e2a;border:1.5px solid #2a2a38;border-radius:20px;cursor:pointer;font-size:13px;padding:8px 12px;white-space:nowrap;font-family:inherit;color:#e8e6f0}
 .cat-pill.sel-i{background:#0d2e1a;border-color:#22c55e;color:#22c55e}
 .cat-pill.sel-e{background:#2a1020;border-color:#f43f5e;color:#f43f5e}
@@ -47,12 +46,10 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6)}
   <button class="ni" data-tab="settings"><span class="ic">⚙️</span>ตั้งค่า</button>
 </nav>
 <script>
-// ─── CONFIG ───────────────────────────────────────────
-const PROXY = "https://examples-hello-world.ohcha2303.deno.net"; // v_final
+const PROXY = "https://examples-hello-world.ohcha2303.deno.net";
 const SK = "exp_v3";
 const today = new Date().toISOString().split("T")[0];
 const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-
 const CATS = {
   income:[
     {id:"salary",label:"เงินเดือน",icon:"💼"},
@@ -74,136 +71,113 @@ const CATS = {
     {id:"other_out",label:"อื่นๆ",icon:"📦"},
   ]
 };
-const ALL = [...CATS.income, ...CATS.expense];
+const ALL=[...CATS.income,...CATS.expense];
+let txns=[],tab="overview",month=today.slice(0,7),editId=null;
+let form={type:"expense",category:"food",amount:"",note:"",date:today};
+let slip={st:"idle",img:"",result:null,err:""};
 
-// ─── STATE ────────────────────────────────────────────
-let txns = [], tab = "overview", month = today.slice(0,7), editId = null;
-let form = {type:"expense",category:"food",amount:"",note:"",date:today};
-let slip = {st:"idle",img:"",result:null,err:""};
+const getCat=id=>ALL.find(c=>c.id===id)||{label:id,icon:"💰"};
+const money=n=>n.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate=iso=>new Date(iso).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});
+const monthLbl=ym=>{const[y,m]=ym.split("-").map(Number);return`${MONTHS[m-1]} ${y+543}`;};
 
-// ─── HELPERS ──────────────────────────────────────────
-const getCat = id => ALL.find(c=>c.id===id) || {label:id,icon:"💰"};
-const money = n => n.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtDate = iso => new Date(iso).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});
-const monthLbl = ym => { const [y,m]=ym.split("-").map(Number); return `${MONTHS[m-1]} ${y+543}`; };
-
-// ─── STORAGE ──────────────────────────────────────────
-function loadTxns() {
-  try {
-    const d = localStorage.getItem(SK);
-    return d ? JSON.parse(d) : [
-      {id:1,type:"income",category:"salary",amount:35000,note:"เงินเดือน",date:today},
-      {id:2,type:"expense",category:"food",amount:450,note:"ข้าวกลางวัน",date:today},
-      {id:3,type:"expense",category:"transport",amount:120,note:"รถไฟฟ้า",date:today},
-    ];
-  } catch(e) { return []; }
+function loadTxns(){
+  try{const d=localStorage.getItem(SK);return d?JSON.parse(d):[
+    {id:1,type:"income",category:"salary",amount:35000,note:"เงินเดือน",date:today},
+    {id:2,type:"expense",category:"food",amount:450,note:"ข้าวกลางวัน",date:today},
+    {id:3,type:"expense",category:"transport",amount:120,note:"รถไฟฟ้า",date:today},
+  ];}catch(e){return[];}
 }
-function saveTxns() {
-  try { localStorage.setItem(SK, JSON.stringify(txns)); toast("✅ บันทึกแล้ว"); }
-  catch(e) { toast("❌ บันทึกไม่สำเร็จ"); }
+function saveTxns(){
+  try{localStorage.setItem(SK,JSON.stringify(txns));toast("✅ บันทึกแล้ว");}
+  catch(e){toast("❌ บันทึกไม่สำเร็จ");}
 }
 
-// ─── TOAST ────────────────────────────────────────────
 let toastT;
-function toast(msg) {
-  const el = document.getElementById("toast");
-  el.textContent = msg; el.classList.add("on");
-  clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove("on"), 2200);
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg;el.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("on"),2200);
 }
 
-// ─── SLIP SCANNER ─────────────────────────────────────
-function onFile(e) {
-  const file = e.target.files[0]; if(!file) return;
-  const fr = new FileReader();
-  fr.onload = ev => {
-    slip = {st:"loading", img:ev.target.result, result:null, err:""};
+function onFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const fr=new FileReader();
+  fr.onload=ev=>{
+    slip={st:"loading",img:ev.target.result,result:null,err:""};
     render();
-    // บีบอัดรูปก่อนส่ง
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      let w=img.width, h=img.height;
-      const max=600; // เล็กลงเพื่อไม่ให้ payload ใหญ่เกิน
-      if(w>max||h>max){ if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;} }
-      canvas.width=w; canvas.height=h;
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement("canvas");
+      let w=img.width,h=img.height,max=800;
+      if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}
+      canvas.width=w;canvas.height=h;
       canvas.getContext("2d").drawImage(img,0,0,w,h);
-      analyzeSlip(canvas.toDataURL("image/jpeg",0.6));
+      analyzeSlip(canvas.toDataURL("image/jpeg",0.7));
     };
-    img.src = ev.target.result;
+    img.src=ev.target.result;
   };
   fr.readAsDataURL(file);
 }
 
-async function analyzeSlip(dataUrl) {
-  try {
-    const base64 = dataUrl.split(",")[1];
-    const payload = {
-      contents:[{parts:[
-        {inline_data:{mime_type:"image/jpeg",data:base64}},
-        {text:`นี่คือสลิปโอนเงินแบงค์ไทย อ่านและตอบเป็น JSON บริสุทธิ์เท่านั้น ห้ามมี markdown:
-{"amount":<ยอดตัวเลข>,"date":"<YYYY-MM-DD>","note":"<ชื่อผู้รับ>","bank":"<แบงค์>","confidence":<0-100>}
-อ่านไม่ได้: {"error":"อ่านไม่ได้"}`}
-      ]}]
-    };
-    const res = await fetch(PROXY, {
+async function analyzeSlip(dataUrl){
+  try{
+    const base64=dataUrl.split(",")[1];
+    const mime=dataUrl.split(";")[0].split(":")[1];
+    const res=await fetch(PROXY,{
       method:"POST",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify(payload)
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({img:base64,mime:mime})
     });
-    const data = await res.json();
-    // Gemini response format
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const clean = raw.replace(/```json|```/g,"").trim();
-    const parsed = JSON.parse(clean);
-    if(parsed.error) {
-      slip = {...slip, st:"error", err:parsed.error};
-    } else {
-      slip = {...slip, st:"done", result:parsed};
-      form = {type:"expense", category:"other_out", amount:String(parsed.amount||""), note:parsed.note||"", date:parsed.date||today};
+    const data=await res.json();
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||"";
+    const clean=raw.replace(/```json|```/g,"").trim();
+    const parsed=JSON.parse(clean);
+    if(parsed.error){slip={...slip,st:"error",err:parsed.error};}
+    else{
+      slip={...slip,st:"done",result:parsed};
+      form={type:"expense",category:"other_out",amount:String(parsed.amount||""),note:parsed.note||"",date:parsed.date||today};
     }
-  } catch(e) {
-    slip = {...slip, st:"error", err:"❌ "+e.message};
+  }catch(e){
+    slip={...slip,st:"error",err:"❌ "+e.message};
   }
   render();
 }
 
-// ─── ACTIONS ──────────────────────────────────────────
-function changeMonth(d) {
-  const [y,m] = month.split("-").map(Number);
-  const dt = new Date(y,m-1+d,1);
-  month = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
+function changeMonth(d){
+  const[y,m]=month.split("-").map(Number);
+  const dt=new Date(y,m-1+d,1);
+  month=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
   render();
 }
-function submitForm() {
-  const amt = parseFloat(form.amount); if(!amt||isNaN(amt)) return;
-  if(editId!==null) { txns=txns.map(t=>t.id===editId?{...t,...form,amount:amt}:t); editId=null; }
-  else { txns=[...txns,{...form,id:Date.now(),amount:amt}]; }
-  form = {type:"expense",category:"food",amount:"",note:"",date:today};
-  slip = {st:"idle",img:"",result:null,err:""};
-  saveTxns(); tab="history"; render();
+function submitForm(){
+  const amt=parseFloat(form.amount);if(!amt||isNaN(amt))return;
+  if(editId!==null){txns=txns.map(t=>t.id===editId?{...t,...form,amount:amt}:t);editId=null;}
+  else{txns=[...txns,{...form,id:Date.now(),amount:amt}];}
+  form={type:"expense",category:"food",amount:"",note:"",date:today};
+  slip={st:"idle",img:"",result:null,err:""};
+  saveTxns();tab="history";render();
 }
-function startEdit(id) {
-  const t=txns.find(x=>x.id===id); if(!t) return;
+function startEdit(id){
+  const t=txns.find(x=>x.id===id);if(!t)return;
   form={type:t.type,category:t.category,amount:String(t.amount),note:t.note,date:t.date};
-  editId=id; tab="add"; render();
+  editId=id;tab="add";render();
 }
-function delTxn(id) { txns=txns.filter(t=>t.id!==id); saveTxns(); render(); }
-function cancelEdit() { editId=null; form={type:"expense",category:"food",amount:"",note:"",date:today}; render(); }
-function resetSlip() { slip={st:"idle",img:"",result:null,err:""}; render(); }
+function delTxn(id){txns=txns.filter(t=>t.id!==id);saveTxns();render();}
+function cancelEdit(){editId=null;form={type:"expense",category:"food",amount:"",note:"",date:today};render();}
+function resetSlip(){slip={st:"idle",img:"",result:null,err:""};render();}
 
-// ─── RENDER ───────────────────────────────────────────
-function render() {
+function render(){
   document.querySelectorAll(".ni").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
-  const f = txns.filter(t=>t.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date));
-  const inc = f.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
-  const exp = f.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
-  const bal = inc-exp;
-  const spendPct = inc>0 ? Math.min(exp/inc*100,100) : 0;
-  const savePct  = inc>0 ? Math.max((inc-exp)/inc*100,0) : 0;
-  const cats = form.type==="income" ? CATS.income : CATS.expense;
+  const f=txns.filter(t=>t.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date));
+  const inc=f.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
+  const exp=f.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
+  const bal=inc-exp;
+  const spendPct=inc>0?Math.min(exp/inc*100,100):0;
+  const savePct=inc>0?Math.max((inc-exp)/inc*100,0):0;
+  const cats=form.type==="income"?CATS.income:CATS.expense;
 
-  // header
-  let h = `
+  let h=`
   <div style="padding:24px 20px 0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div>
@@ -229,12 +203,11 @@ function render() {
   </div>
   <div style="padding:0 20px">`;
 
-  // ── overview ──
   if(tab==="overview"){
-    const byCat = {};
+    const byCat={};
     f.filter(t=>t.type==="expense").forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount;});
-    const sorted = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-    h += `<div style="display:flex;flex-direction:column;gap:14px">
+    const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+    h+=`<div style="display:flex;flex-direction:column;gap:14px">
       <div class="card" style="padding:18px">
         <div style="font-size:13px;color:#8b7fc0;font-weight:600;margin-bottom:8px">การใช้เงินเดือนนี้</div>
         <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b6b8a;margin-bottom:6px">
@@ -249,8 +222,7 @@ function render() {
         <div style="font-size:13px;color:#8b7fc0;font-weight:600;margin-bottom:14px">รายจ่ายตามหมวดหมู่</div>
         ${sorted.length===0?`<div style="color:#4a4a6a;text-align:center;padding:12px 0">ยังไม่มีรายจ่าย</div>`:
         sorted.map(([cat,amt])=>{
-          const base=inc>0?inc:exp; const pct=base>0?amt/base*100:0;
-          const c=getCat(cat);
+          const base=inc>0?inc:exp;const pct=base>0?amt/base*100:0;const c=getCat(cat);
           return`<div style="margin-bottom:12px">
             <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
               <span>${c.icon} ${c.label}</span>
@@ -265,7 +237,7 @@ function render() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           ${[["รายการทั้งหมด",f.length+" รายการ","#7c6aff"],
              ["ออมได้",inc>0?savePct.toFixed(1)+"%":"—","#22c55e"],
-             ["รายจ่าย/วัน",exp>0?"฿"+money(exp/new Date(...month.split("-").map((v,i)=>i===1?Number(v):Number(v))).getDate()||30):"-","#f43f5e"],
+             ["รายจ่ายเฉลี่ย/วัน",exp>0?"฿"+money(exp/30):"-","#f43f5e"],
              ["ยอดคงเหลือ",bal>=0?"฿"+money(bal):"−฿"+money(Math.abs(bal)),bal>=0?"#a78bfa":"#f87171"]
           ].map(([l,v,c])=>`<div style="background:#0f0f13;border-radius:10px;padding:12px">
             <div style="font-size:11px;color:#5a5a7a;margin-bottom:5px">${l}</div>
@@ -276,10 +248,9 @@ function render() {
     </div>`;
   }
 
-  // ── history ──
   else if(tab==="history"){
-    h += `<div style="display:flex;flex-direction:column;gap:10px">`;
-    if(!f.length) h+=`<div style="text-align:center;padding:40px 0;color:#4a4a6a"><div style="font-size:40px;margin-bottom:10px">📭</div>ยังไม่มีรายการ</div>`;
+    h+=`<div style="display:flex;flex-direction:column;gap:10px">`;
+    if(!f.length)h+=`<div style="text-align:center;padding:40px 0;color:#4a4a6a"><div style="font-size:40px;margin-bottom:10px">📭</div>ยังไม่มีรายการ</div>`;
     else f.forEach(t=>{
       const c=getCat(t.category);
       h+=`<div class="txn">
@@ -300,7 +271,6 @@ function render() {
     h+=`</div>`;
   }
 
-  // ── slip ──
   else if(tab==="slip"){
     h+=`<div style="display:flex;flex-direction:column;gap:14px">
       <div style="font-size:13px;color:#6b6b8a;text-align:center">ถ่ายรูปหรือเลือกสลิปโอนเงิน<br>AI จะอ่านข้อมูลให้อัตโนมัติ</div>
@@ -315,18 +285,18 @@ function render() {
         </button>
       </div>
       <div style="font-size:12px;color:#4a4a6a;text-align:center">รองรับ KBANK · SCB · KTB · BBL · PromptPay</div>`;
-    } else {
+    }else{
       h+=`<div style="position:relative"><img src="${slip.img}" style="width:100%;border-radius:12px;max-height:220px;object-fit:contain;background:#0a0a10"/>
         <button id="bReset" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.75);border:none;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;width:30px;height:30px">✕</button>
       </div>`;
       if(slip.st==="loading"){
         h+=`<div style="text-align:center;padding:20px"><div class="spin"></div><div style="margin-top:10px;font-size:13px;color:#8b7fc0">AI กำลังอ่านสลิป...</div></div>`;
-      } else if(slip.st==="error"){
+      }else if(slip.st==="error"){
         h+=`<div style="background:#1a0d0d;border:1px solid #f43f5e33;border-radius:12px;padding:16px">
-          <div style="font-size:13px;color:#f87171;margin-bottom:10px">❌ ${slip.err}</div>
-          <button id="bReset2" class="btn-d">ลองใหม่</button>
+          <div style="font-size:13px;color:#f87171;margin-bottom:10px">${slip.err}</div>
+          <button id="bReset2" class="btn-g">ลองใหม่</button>
         </div>`;
-      } else if(slip.st==="done"&&slip.result){
+      }else if(slip.st==="done"&&slip.result){
         const r=slip.result;
         h+=`<div style="background:#0d1a10;border:1px solid #22c55e33;border-radius:12px;padding:16px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
@@ -339,14 +309,13 @@ function render() {
             <div style="display:flex;justify-content:space-between"><span style="color:#6b6b8a">วันที่</span><span>${r.date||"-"}</span></div>
             <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6b6b8a;flex-shrink:0">รายละเอียด</span><span style="text-align:right">${r.note||"-"}</span></div>
           </div>
-          <button id="bConfirm" class="btn-p" style="background:linear-gradient(135deg,#22c55e,#16a34a)">✅ ยืนยัน — ไปกรอกรายการ</button>
+          <button id="bConfirm" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;padding:12px;width:100%">✅ ยืนยัน — ไปกรอกรายการ</button>
         </div>`;
       }
     }
     h+=`</div>`;
   }
 
-  // ── add ──
   else if(tab==="add"){
     h+=`<div class="card" style="padding:18px;display:flex;flex-direction:column;gap:14px">
       ${slip.st==="done"?`<div style="background:#0d1a10;border:1px solid #22c55e33;border-radius:8px;padding:10px;font-size:12px;color:#4ade80">📸 ข้อมูลจากสลิป — ตรวจสอบแล้วกด เพิ่มรายการ</div>`:""}
@@ -380,47 +349,32 @@ function render() {
     </div>`;
   }
 
-  // ── settings ──
   else if(tab==="settings"){
-    h+=`<div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card" style="padding:18px">
-        <div style="font-weight:700;margin-bottom:4px">🔑 สถานะ Gemini API</div>
-        <div style="font-size:12px;color:#5a5a7a;margin-bottom:12px">ฟรีถาวร — <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#7c6aff">aistudio.google.com</a></div>
-        <div style="background:#0d2e1a;border:1px solid #22c55e44;border-radius:8px;padding:10px;font-size:13px;color:#4ade80">✅ เชื่อมต่อผ่าน Apps Script แล้ว</div>
-      </div>
-      <div class="card" style="padding:18px">
-        <div style="font-weight:700;margin-bottom:12px">📖 วิธีใช้สแกนสลิป</div>
-        ${[["1","กดแท็บ 📸 สแกนสลิป"],["2","เลือกจากคลัง หรือถ่ายรูปสลิป"],["3","AI อ่านยอด วันที่ ชื่อผู้รับ"],["4","กด ✅ ยืนยัน แล้วเลือกหมวดหมู่"]].map(([n,t])=>`
-        <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-          <div style="background:#7c6aff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${n}</div>
-          <div style="font-size:13px">${t}</div>
-        </div>`).join("")}
-      </div>
+    h+=`<div class="card" style="padding:18px">
+      <div style="font-weight:700;margin-bottom:8px">🔑 สถานะระบบ</div>
+      <div style="background:#0d2e1a;border:1px solid #22c55e44;border-radius:8px;padding:10px;font-size:13px;color:#4ade80;margin-bottom:12px">✅ เชื่อมต่อ AI สำเร็จ พร้อมสแกนสลิป</div>
+      <div style="font-size:13px;color:#6b6b8a">กดแท็บ 📸 สแกนสลิป แล้วเลือกรูปหรือถ่ายภาพสลิปได้เลยครับ</div>
     </div>`;
   }
 
   h+=`</div>`;
-  document.getElementById("app").innerHTML = h;
+  document.getElementById("app").innerHTML=h;
 
-  // ── bind events ──
   document.getElementById("bPrev")?.addEventListener("click",()=>changeMonth(-1));
   document.getElementById("bNext")?.addEventListener("click",()=>changeMonth(1));
-
   document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>startEdit(+b.dataset.edit)));
   document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>delTxn(+b.dataset.del)));
-
   const fi=document.getElementById("fInput");
   fi?.addEventListener("change",onFile);
-  document.getElementById("bGallery")?.addEventListener("click",()=>{fi.removeAttribute("capture");fi.click()});
-  document.getElementById("bCamera")?.addEventListener("click",()=>{fi.setAttribute("capture","environment");fi.click()});
+  document.getElementById("bGallery")?.addEventListener("click",()=>{fi.removeAttribute("capture");fi.click();});
+  document.getElementById("bCamera")?.addEventListener("click",()=>{fi.setAttribute("capture","environment");fi.click();});
   document.getElementById("bReset")?.addEventListener("click",resetSlip);
   document.getElementById("bReset2")?.addEventListener("click",resetSlip);
-  document.getElementById("bConfirm")?.addEventListener("click",()=>{tab="add";render()});
-
+  document.getElementById("bConfirm")?.addEventListener("click",()=>{tab="add";render();});
   document.querySelectorAll("[data-type]").forEach(b=>b.addEventListener("click",()=>{
-    form.type=b.dataset.type; form.category=form.type==="income"?"salary":"food"; render();
+    form.type=b.dataset.type;form.category=form.type==="income"?"salary":"food";render();
   }));
-  document.querySelectorAll("[data-cat]").forEach(b=>b.addEventListener("click",()=>{form.category=b.dataset.cat;render()}));
+  document.querySelectorAll("[data-cat]").forEach(b=>b.addEventListener("click",()=>{form.category=b.dataset.cat;render();}));
   document.getElementById("iAmt")?.addEventListener("input",e=>form.amount=e.target.value);
   document.getElementById("iNote")?.addEventListener("input",e=>form.note=e.target.value);
   document.getElementById("iDate")?.addEventListener("change",e=>form.date=e.target.value);
@@ -428,16 +382,12 @@ function render() {
   document.getElementById("bCancelEdit")?.addEventListener("click",cancelEdit);
 }
 
-// ── NAV ──────────────────────────────────────────────
-document.querySelectorAll(".ni").forEach(b=>b.addEventListener("click",()=>{tab=b.dataset.tab;render()}));
-
-// ── INIT ─────────────────────────────────────────────
-txns = loadTxns();
+document.querySelectorAll(".ni").forEach(b=>b.addEventListener("click",()=>{tab=b.dataset.tab;render();}));
+txns=loadTxns();
 render();
 
-// ── SERVICE WORKER ───────────────────────────────────
 if("serviceWorker" in navigator){
-  const sw=`const C="ev4";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
+  const sw=`const C="ev5";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"})));
 }
 </script>
