@@ -168,11 +168,20 @@ async function analyzeSlip(dataUrl){
   try{
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
-    const PROXY="https://script.google.com/macros/s/AKfycbzRxA4R7PST-qAOZ5lxsq4H8LGzL8OalgJfsndAszWd0KVwoDAgcDY_OsXd2XnTaoPg1A/exec";
+    const PROXY="https://script.google.com/macros/s/AKfycbwhHZIbOSCzbaTPNkL8B6ynY-NxrF1FgIQKy8xDEXI0PeOwETgcj1PTufBenoSmlAV1gg/exec";
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
-    const url=PROXY+"?mime="+encodeURIComponent(mediaType)+"&img="+encodeURIComponent(base64);
-    const res=await fetch(url,{method:"GET"});
+    const payload={contents:[{parts:[
+      {inline_data:{mime_type:mediaType,data:base64}},
+      {text:`นี่คือสลิปโอนเงินจากแบงค์ไทย อ่านข้อมูลและตอบกลับเป็น JSON เท่านั้น ไม่มี markdown ไม่มีข้อความอื่น:
+{"amount":<ยอดโอนตัวเลข>,"date":"<YYYY-MM-DD>","note":"<ชื่อผู้รับ>","bank":"<ชื่อแบงค์>","confidence":<0-100>}
+ถ้าอ่านไม่ได้ตอบ: {"error":"อ่านสลิปไม่ได้"}`}
+    ]}]};
+    const res=await fetch(PROXY,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain"},
+      body:JSON.stringify(payload)
+    });
       
     });
     const data=await res.json();
