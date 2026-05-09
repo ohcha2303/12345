@@ -145,12 +145,11 @@ function onSlipFile(e){
 }
 
 async function analyzeSlip(dataUrl){
-  const apiKey=getApiKey();
-  if(!apiKey){slipState={...slipState,status:"error",error:"ยังไม่มี API Key — กรอกที่แท็บ ⚙️ ตั้งค่า"};render();return;}
   try{
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
+    const PROXY="https://script.google.com/macros/s/AKfycbyT-OAILuWZ7Fb4VgH36fMEsQN8RUDJA9nxmCtc-biG5ZHR4DBnVvzBzdbzoZAKLb6W3g/exec";
+    const res=await fetch(PROXY,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
