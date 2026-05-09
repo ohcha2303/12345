@@ -139,16 +139,36 @@ function onSlipFile(e){
   const reader=new FileReader();
   reader.onload=ev=>{
     slipState={status:"loading",imgSrc:ev.target.result,result:null,error:""};
-    render();analyzeSlip(ev.target.result);
+    render();
+    // บีบอัดรูปก่อนส่ง
+    compressImage(ev.target.result,800,0.7,compressed=>{
+      analyzeSlip(compressed);
+    });
   };
   reader.readAsDataURL(file);
+}
+
+function compressImage(dataUrl,maxSize,quality,cb){
+  const img=new Image();
+  img.onload=()=>{
+    const canvas=document.createElement("canvas");
+    let w=img.width,h=img.height;
+    if(w>maxSize||h>maxSize){
+      if(w>h){h=Math.round(h*maxSize/w);w=maxSize;}
+      else{w=Math.round(w*maxSize/h);h=maxSize;}
+    }
+    canvas.width=w;canvas.height=h;
+    canvas.getContext("2d").drawImage(img,0,0,w,h);
+    cb(canvas.toDataURL("image/jpeg",quality));
+  };
+  img.src=dataUrl;
 }
 
 async function analyzeSlip(dataUrl){
   try{
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
-    const PROXY="https://script.google.com/macros/s/AKfycbyT-OAILuWZ7Fb4VgH36fMEsQN8RUDJA9nxmCtc-biG5ZHR4DBnVvzBzdbzoZAKLb6W3g/exec";
+    const PROXY="https://script.google.com/macros/s/AKfycbz4cMCoa2h0ZsEkQuRkmtuS_Y8jgyWq_9hxg7GVC0okR33C3jIbOT1cusMMVGQXHV3PQA/exec";
     const res=await fetch(PROXY,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
