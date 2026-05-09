@@ -123,11 +123,11 @@ function onFile(e) {
     img.onload = () => {
       const canvas = document.createElement("canvas");
       let w=img.width, h=img.height;
-      const max=1024;
+      const max=600; // เล็กลงเพื่อไม่ให้ payload ใหญ่เกิน
       if(w>max||h>max){ if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;} }
       canvas.width=w; canvas.height=h;
       canvas.getContext("2d").drawImage(img,0,0,w,h);
-      analyzeSlip(canvas.toDataURL("image/jpeg",0.8));
+      analyzeSlip(canvas.toDataURL("image/jpeg",0.6));
     };
     img.src = ev.target.result;
   };
