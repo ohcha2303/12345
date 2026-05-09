@@ -190,7 +190,7 @@ async function analyzeSlip(dataUrl){
       slipState={...slipState,status:"done",result:parsed};
       form={type:"expense",category:"other_out",amount:String(parsed.amount||""),note:parsed.note||"",date:parsed.date||today};
     }
-  }catch(e){slipState={...slipState,status:"error",error:"วิเคราะห์ไม่สำเร็จ กรุณาลองใหม่"};}
+  }catch(e){slipState={...slipState,status:"error",error:"❌ "+e.message};render();}
   render();
 }
 
