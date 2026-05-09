@@ -169,18 +169,11 @@ async function analyzeSlip(dataUrl){
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
     const PROXY="https://script.google.com/macros/s/AKfycbz4cMCoa2h0ZsEkQuRkmtuS_Y8jgyWq_9hxg7GVC0okR33C3jIbOT1cusMMVGQXHV3PQA/exec";
-    const res=await fetch(PROXY,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        contents:[{parts:[
-          {inline_data:{mime_type:mediaType,data:base64}},
-          {text:`นี่คือสลิปโอนเงินจากแบงค์ไทย (กสิกร/SCB/กรุงไทย/PromptPay/อื่นๆ)
-อ่านข้อมูลและตอบกลับเป็น JSON เท่านั้น ไม่มี markdown ไม่มีข้อความอื่น:
-{"amount":<ตัวเลขยอดโอน>,"date":"<YYYY-MM-DD>","note":"<ชื่อผู้รับ/รายละเอียด>","bank":"<ชื่อแบงค์>","confidence":<0-100>}
-ถ้าอ่านไม่ได้ตอบ: {"error":"อ่านสลิปไม่ได้"}`}
-        ]}]
-      })
+    const base64=dataUrl.split(",")[1];
+    const mediaType=dataUrl.split(";")[0].split(":")[1];
+    const url=PROXY+"?mime="+encodeURIComponent(mediaType)+"&img="+encodeURIComponent(base64);
+    const res=await fetch(url,{method:"GET"});
+      
     });
     const data=await res.json();
     const text=(data.candidates?.[0]?.content?.parts?.[0]?.text||"").replace(/```json|```/g,"").trim();
