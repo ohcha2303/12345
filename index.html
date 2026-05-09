@@ -168,7 +168,7 @@ async function analyzeSlip(dataUrl){
   try{
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
-    const PROXY="https://script.google.com/macros/s/AKfycbz4cMCoa2h0ZsEkQuRkmtuS_Y8jgyWq_9hxg7GVC0okR33C3jIbOT1cusMMVGQXHV3PQA/exec";
+    const PROXY="https://script.google.com/macros/s/AKfycbzRxA4R7PST-qAOZ5lxsq4H8LGzL8OalgJfsndAszWd0KVwoDAgcDY_OsXd2XnTaoPg1A/exec";
     const base64=dataUrl.split(",")[1];
     const mediaType=dataUrl.split(";")[0].split(":")[1];
     const url=PROXY+"?mime="+encodeURIComponent(mediaType)+"&img="+encodeURIComponent(base64);
