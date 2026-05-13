@@ -78,6 +78,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5)}
   <button class="ni on" data-tab="overview"><span class="ni-ic">📊</span>สรุป</button>
   <button class="ni" data-tab="history"><span class="ni-ic">📋</span>รายการ</button>
   <button class="ni" data-tab="add"><span class="ni-ic">✦</span>เพิ่ม</button>
+  <button class="ni" data-tab="pdf"><span class="ni-ic">📄</span>PDF</button>
 </nav>
 <script>
 const PROXY="https://examples-hello-world.ohcha2303.deno.net";
@@ -161,6 +162,57 @@ async function analyzeSlip(dataUrl){
     else{slip={...slip,st:"done",result:parsed};form={type:"expense",category:"other_out",amount:String(parsed.amount||""),note:parsed.note||"",date:parsed.date||today};}
   }catch(e){slip={...slip,st:"error",err:"❌ "+e.message};}
   render();
+}
+
+function generatePDF(f,inc,exp,bal){
+  const byCat={};
+  f.filter(t=>t.type==="expense").forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount;});
+  const catRows=Object.entries(byCat).sort((a,b)=>b[1]-a[1])
+    .map(([cat,amt])=>{const c=getCat(cat);return`<tr><td>${c.icon} ${c.label}</td><td style="text-align:right;color:#e05c7a">฿${money(amt)}</td><td style="text-align:right;color:#888">${exp>0?(amt/exp*100).toFixed(1):0}%</td></tr>`;}).join("");
+  const txnRows=f.map(t=>{const c=getCat(t.category);return`<tr><td>${fmtDate(t.date)}</td><td>${c.icon} ${c.label}</td><td>${t.note||"—"}</td><td style="text-align:right;color:${t.type==="income"?"#34c78a":"#e05c7a"};font-weight:700">${t.type==="income"?"+":"-"}฿${money(t.amount)}</td></tr>`;}).join("");
+
+  const html=`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Sarabun','TH Sarabun New',sans-serif;color:#1a1a2e;padding:32px;font-size:14px}
+    h1{font-size:26px;font-weight:800;color:#1a1a2e;margin-bottom:4px}
+    .sub{color:#888;font-size:13px;margin-bottom:24px}
+    .summary{display:flex;gap:16px;margin-bottom:28px}
+    .box{flex:1;border-radius:12px;padding:16px;text-align:center}
+    .box-g{background:#e8f8f2;border:1px solid #34c78a40}
+    .box-r{background:#fdf0f3;border:1px solid #e05c7a40}
+    .box-b{background:#f5f0ff;border:1px solid #8b7cf840}
+    .box-label{font-size:11px;color:#888;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+    .box-val{font-size:22px;font-weight:800}
+    .green{color:#28a070}.red{color:#b84060}.purple{color:#6c5ce7}
+    table{width:100%;border-collapse:collapse;margin-bottom:28px}
+    th{background:#f5f0ff;color:#6c5ce7;padding:10px 12px;text-align:left;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+    td{padding:10px 12px;border-bottom:1px solid #f0eeff;font-size:13px}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#fafafe}
+    h2{font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f0eeff}
+    .footer{margin-top:32px;text-align:center;font-size:11px;color:#aaa;border-top:1px solid #f0eeff;padding-top:16px}
+    @media print{body{padding:20px}button{display:none}}
+  </style></head><body>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+    <div><h1>สรุปรายรับ-รายจ่าย</h1><div class="sub">FinTrack · ${mlbl(month)} · ${f.length} รายการ</div></div>
+    <button onclick="window.print()" style="background:#8b7cf8;border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;padding:10px 20px">🖨️ พิมพ์ / บันทึก PDF</button>
+  </div>
+  <div class="summary">
+    <div class="box box-g"><div class="box-label">รายรับ</div><div class="box-val green">฿${money(inc)}</div></div>
+    <div class="box box-r"><div class="box-label">รายจ่าย</div><div class="box-val red">฿${money(exp)}</div></div>
+    <div class="box box-b"><div class="box-label">คงเหลือ</div><div class="box-val purple">${bal<0?"-":""}฿${money(Math.abs(bal))}</div></div>
+  </div>
+  <h2>รายจ่ายตามหมวดหมู่</h2>
+  <table><thead><tr><th>หมวดหมู่</th><th style="text-align:right">ยอด</th><th style="text-align:right">%</th></tr></thead><tbody>${catRows||"<tr><td colspan='3' style='text-align:center;color:#aaa'>ไม่มีรายจ่าย</td></tr>"}</tbody></table>
+  <h2>รายการทั้งหมด</h2>
+  <table><thead><tr><th>วันที่</th><th>หมวดหมู่</th><th>หมายเหตุ</th><th style="text-align:right">ยอด</th></tr></thead><tbody>${txnRows||"<tr><td colspan='4' style='text-align:center;color:#aaa'>ไม่มีรายการ</td></tr>"}</tbody></table>
+  <div class="footer">ออกโดย FinTrack · ${new Date().toLocaleDateString("th-TH",{year:"numeric",month:"long",day:"numeric"})}</div>
+  </body></html>`;
+
+  const w=window.open("","_blank");
+  w.document.write(html);
+  w.document.close();
 }
 
 function changeMonth(d){const[y,m]=month.split("-").map(Number);const dt=new Date(y,m-1+d,1);month=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;render();}
@@ -458,30 +510,54 @@ function render(){
   }
 
   // SETTINGS
-  else if(tab==="settings"){
+  else if(tab==="pdf"){
     h+=`<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
       <div class="glass" style="padding:20px">
-        <div style="font-size:16px;font-weight:800;margin-bottom:16px">⚙️ ตั้งค่า</div>
-        <div style="background:#00d4aa12;border:1px solid #00d4aa30;border-radius:12px;padding:14px;margin-bottom:12px">
-          <div style="font-size:13px;color:var(--green);font-weight:700">✅ ระบบพร้อมใช้งาน</div>
-          <div style="font-size:12px;color:var(--text3);margin-top:4px">เชื่อมต่อ AI สำหรับสแกนสลิปแล้ว</div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:6px">📄 ออกรายงาน PDF</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px">สรุปรายรับ-รายจ่ายรายเดือน</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff06;border-radius:12px;padding:14px;margin-bottom:14px">
+          <button id="bPdfPrev" class="btn btn-icon" style="font-size:20px">‹</button>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:800">${mlbl(month)}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">${f.length} รายการ</div>
+          </div>
+          <button id="bPdfNext" class="btn btn-icon" style="font-size:20px">›</button>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.8">
-          <div>📸 สแกนสลิป → อ่านข้อมูลอัตโนมัติ</div>
-          <div>✦ เพิ่มรายการ → บันทึกด้วยตนเอง</div>
-          <div>📊 สรุป → ดูกราฟและสถิติ</div>
+        <!-- Preview -->
+        <div style="background:#ffffff04;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--text3);font-weight:700;margin-bottom:12px;letter-spacing:1px">ตัวอย่างรายงาน</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:13px;color:var(--text2)">รายรับรวม</span>
+            <span style="font-size:14px;font-weight:700;color:var(--green)">+฿${money(inc)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:13px;color:var(--text2)">รายจ่ายรวม</span>
+            <span style="font-size:14px;font-weight:700;color:var(--red)">-฿${money(exp)}</span>
+          </div>
+          <div style="height:1px;background:var(--border);margin:10px 0"></div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:13px;font-weight:700">คงเหลือ</span>
+            <span style="font-size:15px;font-weight:800;color:${bal>=0?"var(--gold)":"var(--red)}">${bal<0?"-":""}฿${money(Math.abs(bal))}</span>
+          </div>
         </div>
+        <button id="bDownloadPdf" class="btn btn-primary" style="display:flex;align-items:center;justify-content:center;gap:8px">
+          <span style="font-size:18px">📥</span> ดาวน์โหลด PDF
+        </button>
       </div>
+
+      <!-- Monthly history list -->
       <div class="glass" style="padding:20px">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text2)">ข้อมูล</div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
-          <span style="color:var(--text3)">รายการทั้งหมด</span>
-          <span style="font-weight:700">${txns.length} รายการ</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px">
-          <span style="color:var(--text3)">เดือนนี้</span>
-          <span style="font-weight:700">${f.length} รายการ</span>
-        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:14px">รายการทั้งหมด ${f.length} รายการ</div>
+        ${f.length===0?`<div style="text-align:center;color:var(--text3);padding:16px">ไม่มีรายการ</div>`:
+        f.map(t=>{const c=getCat(t.category);return`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:18px;width:28px;text-align:center">${c.icon}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600">${c.label}</div>
+              <div style="font-size:11px;color:var(--text3)">${t.note||"—"} · ${fmtDate(t.date)}</div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:${t.type==="income"?"var(--green)":"var(--red)"}">${t.type==="income"?"+":"-"}฿${money(t.amount)}</div>
+          </div>`}).join("")}
       </div>
     </div>`;
   }
@@ -492,6 +568,9 @@ function render(){
   // Events
   document.getElementById("bPrev")?.addEventListener("click",()=>changeMonth(-1));
   document.getElementById("bNext")?.addEventListener("click",()=>changeMonth(1));
+  document.getElementById("bPdfPrev")?.addEventListener("click",()=>changeMonth(-1));
+  document.getElementById("bPdfNext")?.addEventListener("click",()=>changeMonth(1));
+  document.getElementById("bDownloadPdf")?.addEventListener("click",()=>generatePDF(f,inc,exp,bal));
   document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>startEdit(+b.dataset.edit)));
   document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>delTxn(+b.dataset.del)));
   const fi=document.getElementById("fInput");
