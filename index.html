@@ -3,72 +3,108 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<meta name="theme-color" content="#0f0f13"/>
+<meta name="theme-color" content="#080810"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="บัญชีรายจ่าย"/>
-<title>บัญชีรายรับ-รายจ่าย</title>
+<meta name="apple-mobile-web-app-title" content="FinTrack"/>
+<title>FinTrack — บัญชีรายรับรายจ่าย</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Sarabun',sans-serif;background:#0f0f13;color:#e8e6f0;min-height:100vh}
-.card{background:#17171f;border:1px solid #2a2a38;border-radius:16px}
-.inp{background:#0f0f13;border:1.5px solid #2a2a38;border-radius:10px;color:#e8e6f0;font-family:inherit;font-size:16px;padding:12px 14px;width:100%;outline:none}
-.inp:focus{border-color:#7c6aff}
-.btn-p{background:linear-gradient(135deg,#7c6aff,#a855f7);border:none;border-radius:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;padding:14px;width:100%}
-.btn-g{background:none;border:1px solid #2a2a38;border-radius:12px;color:#6b6b8a;cursor:pointer;font-family:inherit;font-size:14px;padding:10px;width:100%}
-.cat-pill{background:#1e1e2a;border:1.5px solid #2a2a38;border-radius:20px;cursor:pointer;font-size:13px;padding:8px 12px;white-space:nowrap;font-family:inherit;color:#e8e6f0}
-.cat-pill.sel-i{background:#0d2e1a;border-color:#22c55e;color:#22c55e}
-.cat-pill.sel-e{background:#2a1020;border-color:#f43f5e;color:#f43f5e}
-.txn{align-items:center;background:#1a1a24;border:1px solid #242432;border-radius:12px;display:flex;gap:12px;padding:14px}
-.circle{align-items:center;border-radius:50%;display:flex;flex-shrink:0;font-size:20px;height:44px;justify-content:center;width:44px}
-.pbar{background:#1e1e2a;border-radius:8px;height:8px;overflow:hidden}
-.pfill{border-radius:8px;height:100%}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#13131b;border-top:1px solid #2a2a38;display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:99}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0;cursor:pointer;font-size:10px;color:#4a4a6a;border:none;background:none;font-family:inherit}
-.ni.on{color:#7c6aff}
-.ni .ic{font-size:20px}
-#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:#17171f;border:1px solid #3a2a6a;border-radius:12px;padding:10px 20px;font-size:13px;color:#a78bfa;z-index:999;transition:transform .3s;pointer-events:none}
+:root{
+  --bg:#0a0a12;--bg2:#0f0f1a;--bg3:#141420;--bg4:#1a1a2a;
+  --border:#ffffff0d;--border2:#ffffff15;
+  --gold:#e8b86d;--gold2:#c9922a;
+  --green:#34c78a;--green2:#28a070;
+  --red:#e05c7a;--red2:#b84060;
+  --purple:#8b7cf8;--purple2:#6c5ce7;
+  --blue:#5ba4e8;--blue2:#3d7fc4;
+  --text:#e8e4f8;--text2:#8880aa;--text3:#4a4568;
+  --radius:20px;--radius2:14px;--radius3:10px;
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.5}
+/* Scrollbar */
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#ffffff15;border-radius:4px}
+/* Glass card */
+.glass{background:linear-gradient(160deg,#ffffff07,#ffffff02);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(12px)}
+.glass2{background:linear-gradient(160deg,#ffffff05,#ffffff01);border:1px solid var(--border);border-radius:var(--radius2)}
+/* Buttons */
+.btn{border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--purple),#a855f7);border-radius:var(--radius2);color:#fff;font-size:16px;font-weight:700;padding:16px;width:100%;letter-spacing:.5px}
+.btn-primary:active{transform:scale(.97);opacity:.9}
+.btn-ghost{background:none;border:1px solid var(--border2);border-radius:var(--radius2);color:var(--text2);font-size:14px;padding:11px;width:100%}
+.btn-icon{background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);cursor:pointer;font-size:18px;padding:7px 12px;font-family:inherit}
+/* Inputs */
+.inp{background:#ffffff08;border:1.5px solid var(--border2);border-radius:var(--radius3);color:var(--text);font-family:inherit;font-size:16px;padding:13px 16px;width:100%;outline:none;transition:all .2s}
+.inp:focus{border-color:var(--purple);background:#7c6aff12}
+/* Category pills */
+.pill{background:#ffffff08;border:1.5px solid var(--border);border-radius:30px;cursor:pointer;font-size:13px;padding:8px 14px;font-family:inherit;color:var(--text2);transition:all .2s}
+.pill.pi{background:#00d4aa15;border-color:var(--green);color:var(--green)}
+.pill.pe{background:#ff4d6d15;border-color:var(--red);color:var(--red)}
+/* Transaction */
+.txn{align-items:center;background:#ffffff05;border:1px solid var(--border);border-radius:var(--radius2);display:flex;gap:14px;padding:16px;transition:all .2s;margin-bottom:10px}
+.txn:hover{background:#ffffff09;border-color:var(--border2)}
+.avatar{align-items:center;border-radius:14px;display:flex;flex-shrink:0;font-size:22px;height:48px;justify-content:center;width:48px}
+/* Progress */
+.pbar{background:#ffffff0a;border-radius:99px;height:8px;overflow:hidden}
+.pfill{border-radius:99px;height:100%;transition:width .8s cubic-bezier(.4,0,.2,1)}
+/* Nav */
+.nav{position:fixed;bottom:0;left:0;right:0;background:#0c0c18ee;border-top:1px solid var(--border);backdrop-filter:blur(30px);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:99}
+.ni{flex:1;align-items:center;display:flex;flex-direction:column;gap:4px;padding:10px 0;cursor:pointer;font-size:10px;color:var(--text3);border:none;background:none;font-family:inherit;transition:all .2s;position:relative}
+.ni.on{color:var(--purple)}
+.ni.on::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:2px;background:var(--purple);border-radius:0 0 4px 4px}
+.ni-ic{font-size:22px}
+/* Toast */
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:12px 24px;font-size:14px;color:var(--text);z-index:999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px #00000060}
 #toast.on{transform:translateX(-50%) translateY(0)}
-.spin{width:28px;height:28px;border:3px solid #2a2a3a;border-top-color:#7c6aff;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}
+/* Spinner */
+.spin{width:32px;height:32px;border:3px solid #ffffff15;border-top-color:var(--purple);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}
 @keyframes sp{to{transform:rotate(360deg)}}
-input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6)}
+/* SVG Donut */
+.donut{transform:rotate(-90deg);transform-origin:center}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5)}
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease both}
+/* Gradient text */
+.grad-text{background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.grad-green{background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 </style>
 </head>
 <body>
 <div id="toast"></div>
-<div id="app" style="max-width:430px;margin:0 auto;padding-bottom:88px"></div>
+<div id="app" style="max-width:430px;margin:0 auto;padding-bottom:90px"></div>
 <nav class="nav">
-  <button class="ni on" data-tab="overview"><span class="ic">📊</span>สรุป</button>
-  <button class="ni" data-tab="history"><span class="ic">📋</span>รายการ</button>
-  <button class="ni" data-tab="slip"><span class="ic">📸</span>สแกนสลิป</button>
-  <button class="ni" data-tab="add"><span class="ic">➕</span>เพิ่ม</button>
-  <button class="ni" data-tab="settings"><span class="ic">⚙️</span>ตั้งค่า</button>
+  <button class="ni on" data-tab="overview"><span class="ni-ic">📊</span>สรุป</button>
+  <button class="ni" data-tab="history"><span class="ni-ic">📋</span>รายการ</button>
+  <button class="ni" data-tab="add"><span class="ni-ic">✦</span>เพิ่ม</button>
 </nav>
 <script>
-const PROXY = "https://examples-hello-world.ohcha2303.deno.net";
-const SK = "exp_v3";
-const today = new Date().toISOString().split("T")[0];
-const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-const CATS = {
+const PROXY="https://examples-hello-world.ohcha2303.deno.net";
+const SK="fintrack_v1";
+const today=new Date().toISOString().split("T")[0];
+const MONTHS=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const CATS={
   income:[
-    {id:"salary",label:"เงินเดือน",icon:"💼"},
-    {id:"freelance",label:"ฟรีแลนซ์",icon:"💻"},
-    {id:"investment",label:"การลงทุน",icon:"📈"},
-    {id:"other_in",label:"อื่นๆ",icon:"✨"},
+    {id:"salary",label:"เงินเดือน",icon:"💼",color:"#00d4aa"},
+    {id:"freelance",label:"ฟรีแลนซ์",icon:"💻",color:"#4facfe"},
+    {id:"investment",label:"การลงทุน",icon:"📈",color:"#f5c518"},
+    {id:"bonus",label:"โบนัส",icon:"🎁",color:"#a855f7"},
+    {id:"other_in",label:"อื่นๆ",icon:"✨",color:"#7c6aff"},
   ],
   expense:[
-    {id:"food",label:"อาหาร",icon:"🍜"},
-    {id:"grocery",label:"ของกิน",icon:"🛒"},
-    {id:"snack",label:"ของกินเล่น",icon:"🍿"},
-    {id:"transport",label:"เดินทาง",icon:"🚗"},
-    {id:"shopping",label:"ช้อปปิ้ง",icon:"🛍"},
-    {id:"health",label:"สุขภาพ",icon:"💊"},
-    {id:"insurance",label:"ประกัน",icon:"🛡️"},
-    {id:"invest",label:"ลงทุน",icon:"📊"},
-    {id:"entertainment",label:"บันเทิง",icon:"🎬"},
-    {id:"utilities",label:"ค่าสาธารณูปโภค",icon:"💡"},
-    {id:"other_out",label:"อื่นๆ",icon:"📦"},
+    {id:"food",label:"อาหาร",icon:"🍜",color:"#ff4d6d"},
+    {id:"transport",label:"เดินทาง",icon:"🚗",color:"#4facfe"},
+    {id:"car",label:"ค่ารถ",icon:"🚙",color:"#00bfff"},
+    {id:"phone",label:"ค่าโทรศัพท์",icon:"📱",color:"#a855f7"},
+    {id:"supplies",label:"ของใช้",icon:"🧴",color:"#ff6b35"},
+    {id:"shopping",label:"ช้อปปิ้ง",icon:"🛍",color:"#e040fb"},
+    {id:"health",label:"สุขภาพ",icon:"💊",color:"#00d4aa"},
+    {id:"insurance",label:"ประกัน",icon:"🛡️",color:"#7c6aff"},
+    {id:"invest",label:"ลงทุน",icon:"📊",color:"#f5c518"},
+    {id:"entertainment",label:"บันเทิง",icon:"🎬",color:"#ff4d6d"},
+    {id:"utilities",label:"สาธารณูปโภค",icon:"💡",color:"#ffd700"},
+    {id:"other_out",label:"อื่นๆ",icon:"📦",color:"#9990c0"},
   ]
 };
 const ALL=[...CATS.income,...CATS.expense];
@@ -76,96 +112,81 @@ let txns=[],tab="overview",month=today.slice(0,7),editId=null;
 let form={type:"expense",category:"food",amount:"",note:"",date:today};
 let slip={st:"idle",img:"",result:null,err:""};
 
-const getCat=id=>ALL.find(c=>c.id===id)||{label:id,icon:"💰"};
+const getCat=id=>ALL.find(c=>c.id===id)||{label:id,icon:"💰",color:"#7c6aff"};
 const money=n=>n.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtDate=iso=>new Date(iso).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});
-const monthLbl=ym=>{const[y,m]=ym.split("-").map(Number);return`${MONTHS[m-1]} ${y+543}`;};
+const fmtDate=iso=>new Date(iso).toLocaleDateString("th-TH",{day:"numeric",month:"short"});
+const mlbl=ym=>{const[y,m]=ym.split("-").map(Number);return`${MONTHS[m-1]} ${y+543}`;};
 
-function loadTxns(){
+function load(){
   try{const d=localStorage.getItem(SK);return d?JSON.parse(d):[
     {id:1,type:"income",category:"salary",amount:35000,note:"เงินเดือน",date:today},
     {id:2,type:"expense",category:"food",amount:450,note:"ข้าวกลางวัน",date:today},
     {id:3,type:"expense",category:"transport",amount:120,note:"รถไฟฟ้า",date:today},
+    {id:4,type:"expense",category:"shopping",amount:890,note:"ซื้อเสื้อผ้า",date:today},
   ];}catch(e){return[];}
 }
-function saveTxns(){
-  try{localStorage.setItem(SK,JSON.stringify(txns));toast("✅ บันทึกแล้ว");}
-  catch(e){toast("❌ บันทึกไม่สำเร็จ");}
-}
+function save(){try{localStorage.setItem(SK,JSON.stringify(txns));toast("✅ บันทึกแล้ว");}catch(e){toast("❌ บันทึกไม่สำเร็จ");}}
 
 let toastT;
-function toast(msg){
-  const el=document.getElementById("toast");
-  el.textContent=msg;el.classList.add("on");
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("on"),2200);
+function toast(msg,dur=2200){
+  const el=document.getElementById("toast");el.textContent=msg;el.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("on"),dur);
 }
 
+// Slip scanner
 function onFile(e){
   const file=e.target.files[0];if(!file)return;
   const fr=new FileReader();
   fr.onload=ev=>{
-    slip={st:"loading",img:ev.target.result,result:null,err:""};
-    render();
+    slip={st:"loading",img:ev.target.result,result:null,err:""};render();
     const img=new Image();
     img.onload=()=>{
-      const canvas=document.createElement("canvas");
-      let w=img.width,h=img.height,max=800;
+      const c=document.createElement("canvas");
+      let w=img.width,h=img.height,max=500;
       if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}
-      canvas.width=w;canvas.height=h;
-      canvas.getContext("2d").drawImage(img,0,0,w,h);
-      analyzeSlip(canvas.toDataURL("image/jpeg",0.7));
-    };
-    img.src=ev.target.result;
-  };
-  fr.readAsDataURL(file);
+      c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);
+      analyzeSlip(c.toDataURL("image/jpeg",0.6));
+    };img.src=ev.target.result;
+  };fr.readAsDataURL(file);
 }
 
 async function analyzeSlip(dataUrl){
   try{
-    const base64=dataUrl.split(",")[1];
-    const mime=dataUrl.split(";")[0].split(":")[1];
-    const res=await fetch(PROXY,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({img:base64,mime:mime})
-    });
+    const base64=dataUrl.split(",")[1],mime=dataUrl.split(";")[0].split(":")[1];
+    const res=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({img:base64,mime})});
     const data=await res.json();
     const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||"";
-    const clean=raw.replace(/```json|```/g,"").trim();
-    const parsed=JSON.parse(clean);
+    const parsed=JSON.parse(raw.replace(/```json|```/g,"").trim());
     if(parsed.error){slip={...slip,st:"error",err:parsed.error};}
-    else{
-      slip={...slip,st:"done",result:parsed};
-      form={type:"expense",category:"other_out",amount:String(parsed.amount||""),note:parsed.note||"",date:parsed.date||today};
-    }
-  }catch(e){
-    slip={...slip,st:"error",err:"❌ "+e.message};
-  }
+    else{slip={...slip,st:"done",result:parsed};form={type:"expense",category:"other_out",amount:String(parsed.amount||""),note:parsed.note||"",date:parsed.date||today};}
+  }catch(e){slip={...slip,st:"error",err:"❌ "+e.message};}
   render();
 }
 
-function changeMonth(d){
-  const[y,m]=month.split("-").map(Number);
-  const dt=new Date(y,m-1+d,1);
-  month=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
-  render();
-}
-function submitForm(){
+function changeMonth(d){const[y,m]=month.split("-").map(Number);const dt=new Date(y,m-1+d,1);month=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;render();}
+function submit(){
   const amt=parseFloat(form.amount);if(!amt||isNaN(amt))return;
   if(editId!==null){txns=txns.map(t=>t.id===editId?{...t,...form,amount:amt}:t);editId=null;}
   else{txns=[...txns,{...form,id:Date.now(),amount:amt}];}
   form={type:"expense",category:"food",amount:"",note:"",date:today};
-  slip={st:"idle",img:"",result:null,err:""};
-  saveTxns();tab="history";render();
+  slip={st:"idle",img:"",result:null,err:""};save();tab="history";render();
 }
-function startEdit(id){
-  const t=txns.find(x=>x.id===id);if(!t)return;
-  form={type:t.type,category:t.category,amount:String(t.amount),note:t.note,date:t.date};
-  editId=id;tab="add";render();
-}
-function delTxn(id){txns=txns.filter(t=>t.id!==id);saveTxns();render();}
+function startEdit(id){const t=txns.find(x=>x.id===id);if(!t)return;form={...t,amount:String(t.amount)};editId=id;tab="add";render();}
+function delTxn(id){if(!confirm("ลบรายการนี้?"))return;txns=txns.filter(t=>t.id!==id);save();render();}
 function cancelEdit(){editId=null;form={type:"expense",category:"food",amount:"",note:"",date:today};render();}
 function resetSlip(){slip={st:"idle",img:"",result:null,err:""};render();}
+
+// Donut chart SVG
+function donut(segments,size=120,stroke=18){
+  const r=(size-stroke)/2,cx=size/2,cy=size/2,circ=2*Math.PI*r;
+  let off=0;
+  const paths=segments.map(s=>{
+    const len=circ*s.pct;
+    const p=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${stroke}" stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-off}" stroke-linecap="round" class="donut"/>`;
+    off+=len;return p;
+  });
+  return`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths.join("")}</svg>`;
+}
 
 function render(){
   document.querySelectorAll(".ni").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
@@ -173,193 +194,302 @@ function render(){
   const inc=f.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
   const exp=f.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
   const bal=inc-exp;
-  const spendPct=inc>0?Math.min(exp/inc*100,100):0;
-  const savePct=inc>0?Math.max((inc-exp)/inc*100,0):0;
+  const spPct=inc>0?Math.min(exp/inc*100,100):0;
+  const svPct=inc>0?Math.max((inc-exp)/inc*100,0):0;
   const cats=form.type==="income"?CATS.income:CATS.expense;
 
-  let h=`
-  <div style="padding:24px 20px 0">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+  // By category
+  const byCat={};
+  f.filter(t=>t.type==="expense").forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount;});
+  const catArr=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+
+  // Donut segments
+  const segments=catArr.map(([cat,amt])=>({color:getCat(cat).color,pct:exp>0?amt/exp:0}));
+
+  // Monthly bar data (last 6 months)
+  const barData=[];
+  for(let i=5;i>=0;i--){
+    const dt=new Date();dt.setMonth(dt.getMonth()-i);
+    const ym=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
+    const mExp=txns.filter(t=>t.date.startsWith(ym)&&t.type==="expense").reduce((s,t)=>s+t.amount,0);
+    const mInc=txns.filter(t=>t.date.startsWith(ym)&&t.type==="income").reduce((s,t)=>s+t.amount,0);
+    barData.push({label:MONTHS[dt.getMonth()],exp:mExp,inc:mInc});
+  }
+  const maxBar=Math.max(...barData.map(d=>Math.max(d.exp,d.inc)),1);
+
+  let h=`<div style="padding:28px 20px 0" class="fade-up">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <div style="font-size:11px;color:#6b6b8a;text-transform:uppercase;letter-spacing:1px">บัญชีส่วนตัว</div>
-        <div style="font-size:20px;font-weight:700;margin-top:2px">รายรับ-รายจ่าย</div>
+        <div style="font-size:12px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:600">FinTrack</div>
+        <div style="font-size:24px;font-weight:800;margin-top:2px;letter-spacing:-.5px">รายรับ-รายจ่าย</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button id="bPrev" style="background:#1e1e2a;border:1px solid #2a2a38;border-radius:8px;color:#aaa;cursor:pointer;font-size:18px;padding:5px 10px;font-family:inherit">‹</button>
-        <span style="font-size:13px;font-weight:600;min-width:72px;text-align:center">${monthLbl(month)}</span>
-        <button id="bNext" style="background:#1e1e2a;border:1px solid #2a2a38;border-radius:8px;color:#aaa;cursor:pointer;font-size:18px;padding:5px 10px;font-family:inherit">›</button>
+        <button id="bPrev" class="btn btn-icon">‹</button>
+        <span style="font-size:13px;font-weight:700;min-width:68px;text-align:center;color:var(--text2)">${mlbl(month)}</span>
+        <button id="bNext" class="btn btn-icon">›</button>
       </div>
     </div>
-    <div style="background:linear-gradient(135deg,#1a1530,#201535,#1a2035);border:1px solid #3a2a6a;border-radius:20px;padding:20px 20px 16px;margin-bottom:14px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:-24px;right:-24px;width:100px;height:100px;background:radial-gradient(circle,rgba(124,106,255,.2),transparent 70%);border-radius:50%"></div>
-      <div style="font-size:12px;color:#8b7fc0;margin-bottom:4px">ยอดคงเหลือ</div>
-      <div style="font-size:32px;font-weight:700;color:${bal>=0?"#a78bfa":"#f87171"};letter-spacing:-1px">${bal<0?"-":""}฿${money(Math.abs(bal))}</div>
-      <div style="display:flex;gap:16px;margin-top:14px">
-        <div><div style="font-size:11px;color:#6b6b8a;margin-bottom:2px">รายรับ</div><div style="font-size:14px;font-weight:600;color:#22c55e">+฿${money(inc)}</div></div>
-        <div style="width:1px;background:#2a2a3a"></div>
-        <div><div style="font-size:11px;color:#6b6b8a;margin-bottom:2px">รายจ่าย</div><div style="font-size:14px;font-weight:600;color:#f43f5e">-฿${money(exp)}</div></div>
+
+    <!-- Balance Card -->
+    <div style="background:linear-gradient(160deg,#161628 0%,#0f0f20 50%,#0c1220 100%);border:1px solid #ffffff10;border-radius:24px;padding:24px;margin-bottom:8px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,#8b7cf820,transparent 70%);border-radius:50%"></div>
+      <div style="position:absolute;bottom:-40px;left:-30px;width:140px;height:140px;background:radial-gradient(circle,#34c78a10,transparent 70%);border-radius:50%"></div>
+      <div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">ยอดคงเหลือ</div>
+      <div style="font-size:40px;font-weight:800;letter-spacing:-2px;margin-bottom:4px" class="${bal>=0?'grad-text':''}">
+        <span style="${bal<0?'color:var(--red)':''}">${bal<0?"-":""}฿${money(Math.abs(bal))}</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;margin-bottom:20px">
+        <div style="width:${spPct}%;max-width:100%;height:4px;background:linear-gradient(90deg,var(--purple),var(--red));border-radius:4px;transition:width .8s ease"></div>
+        <div style="flex:1;height:4px;background:#ffffff10;border-radius:4px"></div>
+      </div>
+      <div style="display:flex;gap:24px">
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">↑ รายรับ</div>
+          <div style="font-size:18px;font-weight:700;color:var(--green)">฿${money(inc)}</div>
+        </div>
+        <div style="width:1px;background:#ffffff10"></div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">↓ รายจ่าย</div>
+          <div style="font-size:18px;font-weight:700;color:var(--red)">฿${money(exp)}</div>
+        </div>
+        <div style="width:1px;background:#ffffff10"></div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">💰 ออม</div>
+          <div style="font-size:18px;font-weight:700;color:var(--gold)">${inc>0?svPct.toFixed(0)+"%":"—"}</div>
+        </div>
       </div>
     </div>
   </div>
   <div style="padding:0 20px">`;
 
+  // OVERVIEW
   if(tab==="overview"){
-    const byCat={};
-    f.filter(t=>t.type==="expense").forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount;});
-    const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-    h+=`<div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card" style="padding:18px">
-        <div style="font-size:13px;color:#8b7fc0;font-weight:600;margin-bottom:8px">การใช้เงินเดือนนี้</div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b6b8a;margin-bottom:6px">
-          <span>ใช้ไป ${spendPct.toFixed(1)}%</span><span>เหลือ ${savePct.toFixed(1)}%</span>
+    h+=`<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+
+      <!-- Bar Chart -->
+      <div class="glass" style="padding:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:16px;letter-spacing:.5px">📊 รายรับ-รายจ่าย 6 เดือน</div>
+        <div style="display:flex;align-items:flex-end;gap:8px;height:100px">
+          ${barData.map(d=>`
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:80px">
+                <div style="flex:1;background:linear-gradient(180deg,var(--green),var(--green2));border-radius:4px 4px 0 0;height:${d.inc>0?Math.max((d.inc/maxBar)*80,4):0}px;transition:height .8s ease"></div>
+                <div style="flex:1;background:linear-gradient(180deg,var(--red),var(--red2));border-radius:4px 4px 0 0;height:${d.exp>0?Math.max((d.exp/maxBar)*80,4):0}px;transition:height .8s ease"></div>
+              </div>
+              <div style="font-size:9px;color:var(--text3);font-weight:600">${d.label}</div>
+            </div>`).join("")}
         </div>
-        <div class="pbar" style="height:12px">
-          <div class="pfill" style="width:${spendPct}%;background:${spendPct>=90?"linear-gradient(90deg,#f43f5e,#fb923c)":spendPct>=70?"linear-gradient(90deg,#fb923c,#fbbf24)":"linear-gradient(90deg,#7c6aff,#22c55e)"}"></div>
+        <div style="display:flex;gap:16px;margin-top:12px;justify-content:center">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:var(--green)"></div>รายรับ</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:var(--red)"></div>รายจ่าย</div>
         </div>
-        <div style="font-size:11px;color:#4a4a6a;text-align:right;margin-top:4px">${inc>0?"รายรับ ฿"+money(inc):"ยังไม่มีรายรับ"}</div>
       </div>
-      <div class="card" style="padding:18px">
-        <div style="font-size:13px;color:#8b7fc0;font-weight:600;margin-bottom:14px">รายจ่ายตามหมวดหมู่</div>
-        ${sorted.length===0?`<div style="color:#4a4a6a;text-align:center;padding:12px 0">ยังไม่มีรายจ่าย</div>`:
-        sorted.map(([cat,amt])=>{
-          const base=inc>0?inc:exp;const pct=base>0?amt/base*100:0;const c=getCat(cat);
-          return`<div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
-              <span>${c.icon} ${c.label}</span>
-              <span style="color:#f43f5e;font-weight:600">฿${money(amt)} <span style="color:#5a5a7a;font-size:11px">(${pct.toFixed(1)}%)</span></span>
+
+      <!-- Donut + Categories -->
+      <div class="glass" style="padding:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:16px;letter-spacing:.5px">🍩 รายจ่ายตามหมวดหมู่</div>
+        ${catArr.length===0?`<div style="text-align:center;padding:20px;color:var(--text3)">ยังไม่มีรายจ่าย</div>`:`
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
+          <div style="position:relative;flex-shrink:0">
+            ${donut(segments,110,16)}
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:11px;color:var(--text3)">รายจ่าย</div>
+              <div style="font-size:14px;font-weight:800;color:var(--red)">฿${money(exp)}</div>
             </div>
-            <div class="pbar"><div class="pfill" style="width:${Math.min(pct,100)}%;background:linear-gradient(90deg,#f43f5e,#fb923c)"></div></div>
-          </div>`;
-        }).join("")}
-      </div>
-      <div class="card" style="padding:18px">
-        <div style="font-size:13px;color:#8b7fc0;font-weight:600;margin-bottom:12px">สถิติ</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          ${[["รายการทั้งหมด",f.length+" รายการ","#7c6aff"],
-             ["ออมได้",inc>0?savePct.toFixed(1)+"%":"—","#22c55e"],
-             ["รายจ่ายเฉลี่ย/วัน",exp>0?"฿"+money(exp/30):"-","#f43f5e"],
-             ["ยอดคงเหลือ",bal>=0?"฿"+money(bal):"−฿"+money(Math.abs(bal)),bal>=0?"#a78bfa":"#f87171"]
-          ].map(([l,v,c])=>`<div style="background:#0f0f13;border-radius:10px;padding:12px">
-            <div style="font-size:11px;color:#5a5a7a;margin-bottom:5px">${l}</div>
-            <div style="font-size:14px;font-weight:700;color:${c}">${v}</div>
-          </div>`).join("")}
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            ${catArr.slice(0,4).map(([cat,amt])=>{
+              const c=getCat(cat);const pct=exp>0?(amt/exp*100):0;
+              return`<div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                  <span style="color:var(--text2)">${c.icon} ${c.label}</span>
+                  <span style="font-weight:700;color:${c.color}">${pct.toFixed(0)}%</span>
+                </div>
+                <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c.color}"></div></div>
+              </div>`;
+            }).join("")}
+          </div>
         </div>
+        ${catArr.length>4?`<div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${catArr.slice(4).map(([cat,amt])=>{const c=getCat(cat);return`<div style="background:${c.color}15;border:1px solid ${c.color}40;border-radius:8px;padding:6px 10px;font-size:12px;color:${c.color}">${c.icon} ${c.label} · ฿${money(amt)}</div>`;}).join("")}
+        </div>`:""}`}
+      </div>
+
+      <!-- Stats Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${[
+          ["รายการทั้งหมด",f.length+" รายการ","var(--purple)","📋"],
+          ["ออมได้",inc>0?"฿"+money(bal>0?bal:0):"—","var(--gold)","💰"],
+          ["รายจ่ายสูงสุด",catArr[0]?getCat(catArr[0][0]).icon+" ฿"+money(catArr[0][1]):"—","var(--red)","🔥"],
+          ["เฉลี่ย/วัน",exp>0?"฿"+money(exp/30):"-","var(--green)","📅"],
+        ].map(([l,v,c,ic])=>`
+          <div class="glass2" style="padding:16px">
+            <div style="font-size:18px;margin-bottom:6px">${ic}</div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">${l}</div>
+            <div style="font-size:15px;font-weight:800;color:${c}">${v}</div>
+          </div>`).join("")}
       </div>
     </div>`;
   }
 
+  // HISTORY
   else if(tab==="history"){
-    h+=`<div style="display:flex;flex-direction:column;gap:10px">`;
-    if(!f.length)h+=`<div style="text-align:center;padding:40px 0;color:#4a4a6a"><div style="font-size:40px;margin-bottom:10px">📭</div>ยังไม่มีรายการ</div>`;
-    else f.forEach(t=>{
-      const c=getCat(t.category);
-      h+=`<div class="txn">
-        <div class="circle" style="background:${t.type==="income"?"#0d2e1a":"#2a1020"}">${c.icon}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:600;font-size:14px;margin-bottom:2px">${c.label}</div>
-          <div style="font-size:12px;color:#5a5a7a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.note||"—"} · ${fmtDate(t.date)}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:15px;font-weight:700;color:${t.type==="income"?"#22c55e":"#f43f5e"}">${t.type==="income"?"+":"-"}฿${money(t.amount)}</div>
-          <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:4px">
-            <button data-edit="${t.id}" style="background:none;border:none;cursor:pointer;font-size:15px;padding:2px">✏️</button>
-            <button data-del="${t.id}" style="background:none;border:none;cursor:pointer;font-size:15px;padding:2px">🗑️</button>
-          </div>
-        </div>
-      </div>`;
-    });
+    h+=`<div style="margin-top:14px">`;
+    if(!f.length){
+      h+=`<div style="text-align:center;padding:60px 0;color:var(--text3)"><div style="font-size:48px;margin-bottom:12px">📭</div><div style="font-size:15px">ยังไม่มีรายการ</div></div>`;
+    } else {
+      // Group by date
+      const byDate={};
+      f.forEach(t=>{(byDate[t.date]=byDate[t.date]||[]).push(t);});
+      Object.entries(byDate).forEach(([date,items])=>{
+        h+=`<div style="font-size:12px;color:var(--text3);font-weight:700;margin:16px 0 8px;letter-spacing:1px">${fmtDate(date)}</div>`;
+        items.forEach(t=>{
+          const c=getCat(t.category);
+          h+=`<div class="txn">
+            <div class="avatar" style="background:${c.color}20">${c.icon}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:14px;margin-bottom:2px">${c.label}</div>
+              <div style="font-size:12px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.note||"—"}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:16px;font-weight:800;color:${t.type==="income"?"var(--green)":"var(--red)"}">${t.type==="income"?"+":"-"}฿${money(t.amount)}</div>
+              <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:4px">
+                <button data-edit="${t.id}" style="background:none;border:none;cursor:pointer;font-size:15px;padding:2px;color:var(--purple)">✏️</button>
+                <button data-del="${t.id}" style="background:none;border:none;cursor:pointer;font-size:15px;padding:2px;color:var(--red)">🗑️</button>
+              </div>
+            </div>
+          </div>`;
+        });
+      });
+    }
     h+=`</div>`;
   }
 
+  // SLIP
   else if(tab==="slip"){
-    h+=`<div style="display:flex;flex-direction:column;gap:14px">
-      <div style="font-size:13px;color:#6b6b8a;text-align:center">ถ่ายรูปหรือเลือกสลิปโอนเงิน<br>AI จะอ่านข้อมูลให้อัตโนมัติ</div>
+    h+=`<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
       <input type="file" id="fInput" accept="image/*" style="display:none"/>`;
     if(slip.st==="idle"){
-      h+=`<div style="display:flex;gap:10px">
-        <button id="bGallery" style="flex:1;background:#1e1e2a;border:2px dashed #3a2a6a;border-radius:16px;color:#e8e6f0;cursor:pointer;font-family:inherit;padding:20px 10px;text-align:center">
-          <div style="font-size:34px;margin-bottom:6px">🖼️</div><div style="font-size:13px;font-weight:600">เลือกจากคลัง</div>
+      h+=`<div style="text-align:center;padding:12px 0;color:var(--text3);font-size:14px">ถ่ายรูปหรือเลือกสลิปโอนเงิน<br>AI จะอ่านข้อมูลให้อัตโนมัติ</div>
+      <div style="display:flex;gap:12px">
+        <button id="bGallery" style="flex:1;background:linear-gradient(135deg,#1a1040,#0d0d24);border:1px solid var(--border2);border-radius:20px;color:var(--text);cursor:pointer;font-family:inherit;padding:28px 10px;text-align:center">
+          <div style="font-size:40px;margin-bottom:10px">🖼️</div>
+          <div style="font-size:14px;font-weight:700">คลังภาพ</div>
         </button>
-        <button id="bCamera" style="flex:1;background:#1e1e2a;border:2px dashed #3a2a6a;border-radius:16px;color:#e8e6f0;cursor:pointer;font-family:inherit;padding:20px 10px;text-align:center">
-          <div style="font-size:34px;margin-bottom:6px">📷</div><div style="font-size:13px;font-weight:600">ถ่ายรูป</div>
+        <button id="bCamera" style="flex:1;background:linear-gradient(135deg,#1a1040,#0d0d24);border:1px solid var(--border2);border-radius:20px;color:var(--text);cursor:pointer;font-family:inherit;padding:28px 10px;text-align:center">
+          <div style="font-size:40px;margin-bottom:10px">📷</div>
+          <div style="font-size:14px;font-weight:700">ถ่ายรูป</div>
         </button>
       </div>
-      <div style="font-size:12px;color:#4a4a6a;text-align:center">รองรับ KBANK · SCB · KTB · BBL · PromptPay</div>`;
-    }else{
-      h+=`<div style="position:relative"><img src="${slip.img}" style="width:100%;border-radius:12px;max-height:220px;object-fit:contain;background:#0a0a10"/>
-        <button id="bReset" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.75);border:none;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;width:30px;height:30px">✕</button>
+      <div style="font-size:12px;color:var(--text3);text-align:center">รองรับ KBANK · SCB · KTB · BBL · PromptPay</div>`;
+    } else {
+      h+=`<div style="position:relative"><img src="${slip.img}" style="width:100%;border-radius:16px;max-height:240px;object-fit:contain;background:#ffffff05"/>
+        <button id="bReset" style="position:absolute;top:10px;right:10px;background:#000000b0;border:none;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;width:32px;height:32px">✕</button>
       </div>`;
       if(slip.st==="loading"){
-        h+=`<div style="text-align:center;padding:20px"><div class="spin"></div><div style="margin-top:10px;font-size:13px;color:#8b7fc0">AI กำลังอ่านสลิป...</div></div>`;
-      }else if(slip.st==="error"){
-        h+=`<div style="background:#1a0d0d;border:1px solid #f43f5e33;border-radius:12px;padding:16px">
-          <div style="font-size:13px;color:#f87171;margin-bottom:10px">${slip.err}</div>
-          <button id="bReset2" class="btn-g">ลองใหม่</button>
+        h+=`<div style="text-align:center;padding:24px"><div class="spin"></div><div style="margin-top:12px;font-size:14px;color:var(--purple);font-weight:600">AI กำลังอ่านสลิป...</div></div>`;
+      } else if(slip.st==="error"){
+        h+=`<div style="background:#ff4d6d10;border:1px solid #ff4d6d30;border-radius:16px;padding:18px">
+          <div style="font-size:13px;color:var(--red);margin-bottom:12px">${slip.err}</div>
+          <button id="bReset2" class="btn btn-ghost">ลองใหม่</button>
         </div>`;
-      }else if(slip.st==="done"&&slip.result){
+      } else if(slip.st==="done"&&slip.result){
         const r=slip.result;
-        h+=`<div style="background:#0d1a10;border:1px solid #22c55e33;border-radius:12px;padding:16px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span style="font-size:20px">✅</span>
-            <div><div style="font-weight:700;color:#22c55e;font-size:14px">อ่านสลิปสำเร็จ</div>
-            <div style="font-size:11px;color:#4a6a4a">${r.bank||""} · มั่นใจ ${r.confidence||"?"}%</div></div>
+        h+=`<div style="background:linear-gradient(135deg,#00d4aa12,#4facfe08);border:1px solid #00d4aa30;border-radius:18px;padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <div style="background:#00d4aa20;border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px">✅</div>
+            <div><div style="font-weight:800;color:var(--green);font-size:16px">อ่านสลิปสำเร็จ</div>
+            <div style="font-size:12px;color:var(--text3)">${r.bank||""} · ความมั่นใจ ${r.confidence||"?"}%</div></div>
           </div>
-          <div style="font-size:13px;display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between"><span style="color:#6b6b8a">ยอดเงิน</span><span style="font-weight:700;color:#22c55e">฿${money(r.amount||0)}</span></div>
-            <div style="display:flex;justify-content:space-between"><span style="color:#6b6b8a">วันที่</span><span>${r.date||"-"}</span></div>
-            <div style="display:flex;justify-content:space-between;gap:8px"><span style="color:#6b6b8a;flex-shrink:0">รายละเอียด</span><span style="text-align:right">${r.note||"-"}</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff06;border-radius:10px;padding:12px 14px">
+              <span style="color:var(--text3);font-size:13px">💰 ยอดเงิน</span>
+              <span style="font-weight:800;color:var(--green);font-size:18px">฿${money(r.amount||0)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff06;border-radius:10px;padding:12px 14px">
+              <span style="color:var(--text3);font-size:13px">📅 วันที่</span>
+              <span style="font-weight:600;font-size:14px">${r.date||"-"}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff06;border-radius:10px;padding:12px 14px;gap:12px">
+              <span style="color:var(--text3);font-size:13px;flex-shrink:0">👤 ผู้รับ</span>
+              <span style="font-weight:600;font-size:14px;text-align:right">${r.note||"-"}</span>
+            </div>
           </div>
-          <button id="bConfirm" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;padding:12px;width:100%">✅ ยืนยัน — ไปกรอกรายการ</button>
+          <button id="bConfirm" style="background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:14px;color:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;padding:14px;width:100%">✅ ยืนยัน → ไปกรอกรายการ</button>
         </div>`;
       }
     }
     h+=`</div>`;
   }
 
+  // ADD
   else if(tab==="add"){
-    h+=`<div class="card" style="padding:18px;display:flex;flex-direction:column;gap:14px">
-      ${slip.st==="done"?`<div style="background:#0d1a10;border:1px solid #22c55e33;border-radius:8px;padding:10px;font-size:12px;color:#4ade80">📸 ข้อมูลจากสลิป — ตรวจสอบแล้วกด เพิ่มรายการ</div>`:""}
+    h+=`<div class="glass" style="padding:20px;margin-top:14px;display:flex;flex-direction:column;gap:16px">
+      ${slip.st==="done"?`<div style="background:#00d4aa12;border:1px solid #00d4aa30;border-radius:10px;padding:12px;font-size:13px;color:var(--green);font-weight:600">📸 ข้อมูลจากสลิป — ตรวจสอบแล้วกดเพิ่ม</div>`:""}
       <div>
-        <div style="font-size:12px;color:#6b6b8a;margin-bottom:6px">ประเภท</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:700;letter-spacing:.5px">ประเภท</div>
         <div style="display:flex;gap:8px">
-          <button data-type="income" style="flex:1;border-radius:10px;font-size:14px;font-weight:600;padding:10px;cursor:pointer;font-family:inherit;color:${form.type==="income"?"#fff":"#5a5a7a"};background:${form.type==="income"?"#0d2e1a":"#1a1a24"};border:1.5px solid ${form.type==="income"?"#22c55e":"#2a2a38"}">💰 รายรับ</button>
-          <button data-type="expense" style="flex:1;border-radius:10px;font-size:14px;font-weight:600;padding:10px;cursor:pointer;font-family:inherit;color:${form.type==="expense"?"#fff":"#5a5a7a"};background:${form.type==="expense"?"#2a1020":"#1a1a24"};border:1.5px solid ${form.type==="expense"?"#f43f5e":"#2a2a38"}">💸 รายจ่าย</button>
+          <button data-type="income" class="btn" style="flex:1;border-radius:14px;font-size:14px;font-weight:700;padding:12px;color:${form.type==="income"?"#fff":"var(--text3)"};background:${form.type==="income"?"linear-gradient(135deg,var(--green),var(--green2))":"#ffffff08"};border:1.5px solid ${form.type==="income"?"var(--green)":"var(--border)"}">↑ รายรับ</button>
+          <button data-type="expense" class="btn" style="flex:1;border-radius:14px;font-size:14px;font-weight:700;padding:12px;color:${form.type==="expense"?"#fff":"var(--text3)"};background:${form.type==="expense"?"linear-gradient(135deg,var(--red),var(--red2))":"#ffffff08"};border:1.5px solid ${form.type==="expense"?"var(--red)":"var(--border)"}">↓ รายจ่าย</button>
         </div>
       </div>
       <div>
-        <div style="font-size:12px;color:#6b6b8a;margin-bottom:6px">หมวดหมู่</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:700;letter-spacing:.5px">หมวดหมู่</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
-          ${cats.map(c=>`<button class="cat-pill ${form.category===c.id?(form.type==="income"?"sel-i":"sel-e"):""}" data-cat="${c.id}">${c.icon} ${c.label}</button>`).join("")}
+          ${cats.map(c=>`<button class="pill ${form.category===c.id?(form.type==="income"?"pi":"pe"):""}" data-cat="${c.id}">${c.icon} ${c.label}</button>`).join("")}
         </div>
       </div>
       <div>
-        <div style="font-size:12px;color:#6b6b8a;margin-bottom:6px">จำนวนเงิน (บาท)</div>
-        <input class="inp" id="iAmt" type="number" inputmode="decimal" placeholder="0.00" value="${form.amount}"/>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.5px">จำนวนเงิน (บาท)</div>
+        <input class="inp" id="iAmt" type="number" inputmode="decimal" placeholder="0.00" value="${form.amount}" style="font-size:24px;font-weight:800"/>
       </div>
       <div>
-        <div style="font-size:12px;color:#6b6b8a;margin-bottom:6px">หมายเหตุ</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.5px">หมายเหตุ</div>
         <input class="inp" id="iNote" type="text" placeholder="บันทึกรายการ..." maxlength="80" value="${form.note}"/>
       </div>
       <div>
-        <div style="font-size:12px;color:#6b6b8a;margin-bottom:6px">วันที่</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.5px">วันที่</div>
         <input class="inp" id="iDate" type="date" value="${form.date}"/>
       </div>
-      <button id="bSubmit" class="btn-p">${editId!==null?"💾 บันทึกการแก้ไข":"✅ เพิ่มรายการ"}</button>
-      ${editId!==null?`<button id="bCancelEdit" class="btn-g">ยกเลิก</button>`:""}
+      <button id="bSubmit" class="btn btn-primary">${editId!==null?"💾 บันทึกการแก้ไข":"✦ เพิ่มรายการ"}</button>
+      ${editId!==null?`<button id="bCancelEdit" class="btn btn-ghost">ยกเลิก</button>`:""}
     </div>`;
   }
 
+  // SETTINGS
   else if(tab==="settings"){
-    h+=`<div class="card" style="padding:18px">
-      <div style="font-weight:700;margin-bottom:8px">🔑 สถานะระบบ</div>
-      <div style="background:#0d2e1a;border:1px solid #22c55e44;border-radius:8px;padding:10px;font-size:13px;color:#4ade80;margin-bottom:12px">✅ เชื่อมต่อ AI สำเร็จ พร้อมสแกนสลิป</div>
-      <div style="font-size:13px;color:#6b6b8a">กดแท็บ 📸 สแกนสลิป แล้วเลือกรูปหรือถ่ายภาพสลิปได้เลยครับ</div>
+    h+=`<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+      <div class="glass" style="padding:20px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:16px">⚙️ ตั้งค่า</div>
+        <div style="background:#00d4aa12;border:1px solid #00d4aa30;border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:13px;color:var(--green);font-weight:700">✅ ระบบพร้อมใช้งาน</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">เชื่อมต่อ AI สำหรับสแกนสลิปแล้ว</div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.8">
+          <div>📸 สแกนสลิป → อ่านข้อมูลอัตโนมัติ</div>
+          <div>✦ เพิ่มรายการ → บันทึกด้วยตนเอง</div>
+          <div>📊 สรุป → ดูกราฟและสถิติ</div>
+        </div>
+      </div>
+      <div class="glass" style="padding:20px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text2)">ข้อมูล</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+          <span style="color:var(--text3)">รายการทั้งหมด</span>
+          <span style="font-weight:700">${txns.length} รายการ</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:var(--text3)">เดือนนี้</span>
+          <span style="font-weight:700">${f.length} รายการ</span>
+        </div>
+      </div>
     </div>`;
   }
 
   h+=`</div>`;
   document.getElementById("app").innerHTML=h;
 
+  // Events
   document.getElementById("bPrev")?.addEventListener("click",()=>changeMonth(-1));
   document.getElementById("bNext")?.addEventListener("click",()=>changeMonth(1));
   document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>startEdit(+b.dataset.edit)));
@@ -371,23 +501,20 @@ function render(){
   document.getElementById("bReset")?.addEventListener("click",resetSlip);
   document.getElementById("bReset2")?.addEventListener("click",resetSlip);
   document.getElementById("bConfirm")?.addEventListener("click",()=>{tab="add";render();});
-  document.querySelectorAll("[data-type]").forEach(b=>b.addEventListener("click",()=>{
-    form.type=b.dataset.type;form.category=form.type==="income"?"salary":"food";render();
-  }));
+  document.querySelectorAll("[data-type]").forEach(b=>b.addEventListener("click",()=>{form.type=b.dataset.type;form.category=form.type==="income"?"salary":"food";render();}));
   document.querySelectorAll("[data-cat]").forEach(b=>b.addEventListener("click",()=>{form.category=b.dataset.cat;render();}));
   document.getElementById("iAmt")?.addEventListener("input",e=>form.amount=e.target.value);
   document.getElementById("iNote")?.addEventListener("input",e=>form.note=e.target.value);
   document.getElementById("iDate")?.addEventListener("change",e=>form.date=e.target.value);
-  document.getElementById("bSubmit")?.addEventListener("click",submitForm);
+  document.getElementById("bSubmit")?.addEventListener("click",submit);
   document.getElementById("bCancelEdit")?.addEventListener("click",cancelEdit);
 }
 
 document.querySelectorAll(".ni").forEach(b=>b.addEventListener("click",()=>{tab=b.dataset.tab;render();}));
-txns=loadTxns();
-render();
+txns=load();render();
 
 if("serviceWorker" in navigator){
-  const sw=`const C="ev5";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
+  const sw=`const C="ft2";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"})));
 }
 </script>
